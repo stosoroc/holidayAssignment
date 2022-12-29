@@ -1,0 +1,27 @@
+[
+  {
+    "make": "Toyota",
+    "model": "Camry",
+    "vin": "123456",
+    "plate": "ABC123",
+    "color": "red",
+    "year": 2020,
+    "rental_history": [
+      ["2022-01-01", "123456789"],
+      ["2022-01-05", "987654321"]
+    ],
+    "rental_count": 2
+  },
+  {
+    "make": "Honda",
+    "model": "Accord",
+    "vin": "234567",
+    "plate": "DEF456",
+    "color": "blue",
+    "year": 2021,
+    "rental_history": [
+      ["2022-02-01", "111111111"]
+    ],
+    "rental_count": 1
+  }
+]
