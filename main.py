@@ -14,6 +14,8 @@ class Car:
         self.rental_history.append((date, idnp))
         self.rental_count += 1
 
+
+
 exit1 = False
 
 def read_data():
@@ -49,19 +51,23 @@ def main_car_menue():
     car_list = read_data()
     while True:
         print("\nMain car menu:")
-        print("1. Add a new car")
-        print("2. Rent a car")
-        print("3. View rental history of a car")
-        print("4. Main customer menu")
+        print("1. List of cars")
+        print("2. Add a new car")
+        print("3. Rent a car")
+        print("4. View rental history of a car")
+        print("5. Main customer menu")
         print("0. Quit")
         choice = input("Enter your choice: ")
         if choice == "1":
-            add_car(car_list)
+            cars=read_data()
+            display_cars(cars)
         elif choice == "2":
-            rent_car(car_list)
+            add_car(car_list)
         elif choice == "3":
-            view_history(car_list)
+            rent_car(car_list)
         elif choice == "4":
+            view_history(car_list)
+        elif choice == "5":
             main_customer_menu()
             if exit1:
                 break
@@ -103,10 +109,62 @@ def view_history(car_list):
             return
     print("Car not found")
 
+# def read_customers():
+#     with open("customers.json", "r") as f:
+#         return json.load(f)
+
+class Cust:
+    def __init__(self, first_name, last_name, idnp, dob, total_rentals):
+        self.first_name = first_name
+        self.last_name = last_name
+        self.idnp = idnp
+        self.dob = dob
+        self.total_rentals = total_rentals
+        self.rental_history = []
+        self.rental_count = 0
+
+    def rent(self, idnp, date):
+        self.rental_history.append((date, idnp))
+        self.rental_count += 1
+
+def read_data():
+    with open("cars.json", "r") as f:
+        data = json.load(f)
+        car_list = []
+        for car in data:
+            new_car = Car(car["make"], car["model"], car["vin"], car["plate"], car["color"], car["year"])
+            new_car.rental_history = car["rental_history"]
+            new_car.rental_count = car["rental_count"]
+            car_list.append(new_car)
+        return car_list
+    
 def read_customers():
     with open("customers.json", "r") as f:
-        return json.load(f)
+        data = json.load(f)
+        customer_list = []
+    for c in data:
+           new_customers = Cust(c["first_name"], c["last_name"], c["idnp"], c["dob"], c["total_rentals"])
+           new_customers.rented_cars = c["rented_cars"]
+           new_customers.total_rentals = c["total_rentals"]
+           customer_list.append(new_customers)
+    return customer_list
+    
+def display_cars(cars):
+    print("\n#   Make  and  Model    VIN Number          Plate Number        Color               Year of Production")
+    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+    for i in range(len(cars)):
+        name = cars[i].make + " " + cars[i].model
+        print(f"{i+1:<4}{name:<20}{cars[i].vin:<20}{cars[i].plate:<20}{cars[i].color:<20}{cars[i].year:<20}")
+    print()
 
+def display_customers(customers):
+    print("\n#   Name                IDNP                Date of Birth")
+    print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+    for i in range(len(customers)):
+        name = customers[i].first_name + " " + customers[i].last_name
+        print(f"{i+1:<4}{name:<20}{customers[i].idnp:<20}{customers[i].dob:<20}")
+    print()
+    
 def write_customers(customer_list):
     with open("customers.json", "w") as f:
         json.dump(customer_list, f)
@@ -162,22 +220,26 @@ def main_customer_menu():
     global exit1
     while True:
         print("\nMain customer menu:")
-        print("1. Search for customer by name")
-        print("2. Display last 5 rentals for a customer")
-        print("3. Search for customer by VIN number")
-        print("4. Add new customer")
-        print("5. Add car to existing customer")
-        print("6. Main car menu")
+        print("1. List of customers")
+        print("2. Search for customer by name")
+        print("3. Display last 5 rentals for a customer")
+        print("4. Search for customer by VIN number")
+        print("5. Add new customer")
+        print("6. Add car to existing customer")
+        print("7. Main car menu")
         print("0. Quit")
         choice = input("Enter your choice: ")
         if choice == "1":
+            customers = read_customers()
+            display_customers(customers)
+        elif choice == "2":
             name = input("Enter the customer's name: ")
             customer = search_customer_by_name(name, customers)
             if customer:
                 print("Customer found:", customer["first_name"], customer["last_name"])
             else:
                 print("Customer not found")
-        elif choice == "2":
+        elif choice == "3":
             idnp = input("Enter the customer's IDNP: ")
             customer = None
             for c in customers:
@@ -188,18 +250,18 @@ def main_customer_menu():
                 display_last_5_rentals(customer)
             else:
                 print("Customer not found")
-        elif choice == "3":
+        elif choice == "4":
             vin = input("Enter the VIN number: ")
             customer = search_customer_by_vin(vin, customers)
             if customer:
                 print("Customer found:", customer["first_name"], customer["last_name"])
             else:
                 print("Customer not found")
-        elif choice == "4":
+        elif choice == "5":
             add_customer(customers)
             write_customers(customers)
             print("Customer added successfully")
-        elif choice == "5":
+        elif choice == "6":
             idnp = input("Enter the customer's IDNP: ")
             vin = input("Enter the VIN number of the car: ")
             date = input("Enter the rental date (YYYY-MM-DD): ")
@@ -214,7 +276,7 @@ def main_customer_menu():
                 print("Car added to customer successfully")
             else:
                 print("Customer not found")
-        elif choice == "6":
+        elif choice == "7":
             main_car_menue()
             if exit1:
                 break
@@ -224,8 +286,27 @@ def main_customer_menu():
         else:
             print("Invalid choice")
 
-    
+
 if __name__ == "__main__":
-    main_car_menue()
-    #main_customer_menu()
-       
+    while True:
+        print("\n1. Main car menu")
+        print("2. Main customer menu")
+        print("0. Quit")
+        choice = input("Enter your choice: ")
+        if choice == "1":
+            main_car_menue()
+            if exit1:
+                break
+        elif choice == "2":
+            main_customer_menu()
+            if exit1:
+                break
+        elif choice == "0":
+            exit1 = True
+            break
+        else:
+            print("Invalid choice")
+    # cars=read_data()
+    # display_cars(cars)
+    # customers = read_customers()
+    # display_customers(customers)       
